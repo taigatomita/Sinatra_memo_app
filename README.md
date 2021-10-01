@@ -2,9 +2,7 @@
 Sinatraを使用した簡単なメモアプリです。
  
 # Installation
- 
-Requirementで列挙したライブラリなどのインストール方法を説明する
- 
+
 ```bash
 git clone https://github.com/taigatomita/Sinatra_memo_app.git # ファイルをローカル環境に複製します
 cd Sinatra_memo_app.git # アプリが保存してあるディレクトリに移動します
