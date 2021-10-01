@@ -1,0 +1,14 @@
+<div class='ul_align_container'>
+  <% if @memo_data then %>
+    <ul>
+    <% @memo_data.each do |memo| %>
+    <li><a href="/<%= memo[:id] %>"><%= h memo[:title] %></a></li>
+    <% end %>
+    </ul>
+  <% else %>
+  <p>メモはありません</p>
+  <% end %>
+</div>
+<div class="button_container">
+  <button onclick="location.href='/new'" class="form_item_button">追加する</button>
+</div>
