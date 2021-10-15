@@ -1,7 +1,7 @@
 <div class='ul_align_container'>
-  <% unless @memo_data.ntuples.zero? then %>
+  <% unless @memos_data.ntuples.zero? then %>
     <ul>
-    <% @memo_data.each do |memo| %>
+    <% @memos_data.each do |memo| %>
     <li><a href="/<%= memo['id'] %>"><%= h memo['title'] %></a></li>
     <% end %>
     </ul>

@@ -5,18 +5,24 @@ require 'sinatra/reloader'
 require 'json'
 require 'pg'
 
-helpers do
-  def h(text)
-    Rack::Utils.escape_html(text)
-  end
-end
-
 configure do
   set :connection, PG::Connection.open(dbname: 'memo_app')
 end
 
+helpers do
+  def h(text)
+    Rack::Utils.escape_html(text)
+  end
+
+  def fetch_memo_status(id)
+    memo_stat = settings.connection.exec_params('SELECT title,content FROM memos WHERE id = $1', [id])
+    @memo_title = memo_stat.to_a[0]['title']
+    @content = memo_stat.to_a[0]['content']
+  end
+end
+
 get '/' do
-  @memo_data = settings.connection.exec('SELECT * FROM memos')
+  @memos_data = settings.connection.exec('SELECT * FROM memos')
   @title = 'メモ一覧'
   erb :index
 end
@@ -27,16 +33,14 @@ get '/new' do
 end
 
 get '/:id' do |n|
-  @memo_title = settings.connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
-  @content = settings.connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
+  fetch_memo_status(n)
   @id = n
   @title = 'メモ詳細'
   erb :show
 end
 
 get '/:id/edit' do |n|
-  @memo_title = settings.connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
-  @content = settings.connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
+  fetch_memo_status(n)
   @id = n
   @title = '編集'
   erb :edit
