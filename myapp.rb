@@ -11,17 +11,12 @@ helpers do
   end
 end
 
-before do
-  @connection = PG::Connection.open(dbname: 'memo_app')
-  @connection.internal_encoding = 'UTF-8'
-end
-
-after do
-  @connection.finish
+configure do
+  set :connection, PG::Connection.open(dbname: 'memo_app')
 end
 
 get '/' do
-  @memo_data = @connection.exec('SELECT * FROM memos')
+  @memo_data = settings.connection.exec('SELECT * FROM memos')
   @title = 'メモ一覧'
   erb :index
 end
@@ -32,32 +27,32 @@ get '/new' do
 end
 
 get '/:id' do |n|
-  @memo_title = @connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
-  @content = @connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
+  @memo_title = settings.connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
+  @content = settings.connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
   @id = n
   @title = 'メモ詳細'
   erb :show
 end
 
 get '/:id/edit' do |n|
-  @memo_title = @connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
-  @content = @connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
+  @memo_title = settings.connection.exec_params('SELECT title FROM memos WHERE id = $1', [n]).to_a[0]['title']
+  @content = settings.connection.exec_params('SELECT content FROM memos WHERE id = $1', [n]).to_a[0]['content']
   @id = n
   @title = '編集'
   erb :edit
 end
 
 patch '/:id' do |n|
-  @connection.exec('UPDATE memos SET (title, content) = ($1, $2) WHERE id = $3', [params[:title], params[:content], n])
+  settings.connection.exec('UPDATE memos SET (title, content) = ($1, $2) WHERE id = $3', [params[:title], params[:content], n])
   redirect '/'
 end
 
 post '/' do
-  @connection.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
+  settings.connection.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
   redirect '/'
 end
 
 delete '/:id' do |n|
-  @connection.exec('DELETE FROM memos WHERE id = $1', [n])
+  settings.connection.exec('DELETE FROM memos WHERE id = $1', [n])
   redirect '/'
 end
