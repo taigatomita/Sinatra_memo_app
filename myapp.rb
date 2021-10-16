@@ -27,26 +27,26 @@ get '/' do
   erb :index
 end
 
-get '/new' do
+get '/memos/new' do
   @title = 'メモ作成'
   erb :new
 end
 
-get '/:id' do |n|
+get '/memos/:id' do |n|
   fetch_memo_status(n)
   @id = n
   @title = 'メモ詳細'
   erb :show
 end
 
-get '/:id/edit' do |n|
+get '/memos/:id/edit' do |n|
   fetch_memo_status(n)
   @id = n
   @title = '編集'
   erb :edit
 end
 
-patch '/:id' do |n|
+patch '/memos/:id' do |n|
   settings.connection.exec('UPDATE memos SET (title, content) = ($1, $2) WHERE id = $3', [params[:title], params[:content], n])
   redirect '/'
 end
@@ -56,7 +56,7 @@ post '/' do
   redirect '/'
 end
 
-delete '/:id' do |n|
+delete '/memos/:id' do |n|
   settings.connection.exec('DELETE FROM memos WHERE id = $1', [n])
   redirect '/'
 end

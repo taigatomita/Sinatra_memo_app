@@ -2,7 +2,7 @@
   <% unless @memos_data.ntuples.zero? then %>
     <ul>
     <% @memos_data.each do |memo| %>
-    <li><a href="/<%= memo['id'] %>"><%= h memo['title'] %></a></li>
+    <li><a href="/memos/<%= memo['id'] %>"><%= h memo['title'] %></a></li>
     <% end %>
     </ul>
   <% else %>
@@ -10,5 +10,5 @@
   <% end %>
 </div>
 <div class="button_container">
-  <button onclick="location.href='/new'" class="form_item_button">追加する</button>
+  <button onclick="location.href='memos/new'" class="form_item_button">追加する</button>
 </div>
