@@ -51,7 +51,7 @@ patch '/memos/:id' do |n|
   redirect '/'
 end
 
-post '/' do
+post '/memos' do
   settings.connection.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
   redirect '/'
 end
