@@ -3,10 +3,10 @@
   <p><%= h @content %></p>
 </div>
 
-<form action="/<%= @id %>" method="POST">
+<form action="/memos/<%= @id %>" method="POST">
 <div class="button_container">
   <input type="hidden" name="_method", value="DELETE">
-  <input type="button" class="form_item_button" value="編集する" onclick="location.href='/<%= @id %>/edit'">
+  <input type="button" class="form_item_button" value="編集する" onclick="location.href='/memos/<%= @id %>/edit'">
   <input type="submit" class="form_item_button" value="削除する">
 </div>
 </form>

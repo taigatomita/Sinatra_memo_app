@@ -3,68 +3,60 @@
 require 'sinatra'
 require 'sinatra/reloader'
 require 'json'
+require 'pg'
+
+configure do
+  set :connection, PG::Connection.open(dbname: 'memo_app')
+end
 
 helpers do
   def h(text)
     Rack::Utils.escape_html(text)
   end
-end
 
-before do
-  json_str = File.open('memo_data.json', &:read)
-  return if json_str.empty?
-
-  @memo_data = JSON.parse(json_str, symbolize_names: true)
+  def fetch_memo_status(id)
+    memo_stat = settings.connection.exec_params('SELECT title,content FROM memos WHERE id = $1', [id])
+    @memo_title = memo_stat.to_a[0]['title']
+    @content = memo_stat.to_a[0]['content']
+  end
 end
 
 get '/' do
+  @memos_data = settings.connection.exec('SELECT * FROM memos')
   @title = 'メモ一覧'
   erb :index
 end
 
-get '/new' do
+get '/memos/new' do
   @title = 'メモ作成'
   erb :new
 end
 
-get '/:id' do |n|
-  @memo_title = @memo_data[n.to_i - 1][:title]
-  @content = @memo_data[n.to_i - 1][:message]
+get '/memos/:id' do |n|
+  fetch_memo_status(n)
   @id = n
   @title = 'メモ詳細'
   erb :show
 end
 
-get '/:id/edit' do |n|
-  @memo_title = @memo_data[n.to_i - 1][:title]
-  @content = @memo_data[n.to_i - 1][:message]
+get '/memos/:id/edit' do |n|
+  fetch_memo_status(n)
   @id = n
   @title = '編集'
   erb :edit
 end
 
-patch '/:id' do |n|
-  @memo_data[n.to_i - 1][:title] = params[:title]
-  @memo_data[n.to_i - 1][:message] = params[:message]
-  File.open('memo_data.json', 'w+') { |file| JSON.dump(@memo_data, file) }
-  redirect "/#{n}"
-end
-
-post '/' do
-  @memo_data ||= []
-  @memo_data << params
-  @memo_data.each_with_index do |hash, idx|
-    hash[:id] = (idx + 1).to_s unless hash.key?(:id)
-  end
-  File.open('memo_data.json', 'w+') { |file| JSON.dump(@memo_data, file) }
+patch '/memos/:id' do |n|
+  settings.connection.exec('UPDATE memos SET (title, content) = ($1, $2) WHERE id = $3', [params[:title], params[:content], n])
   redirect '/'
 end
 
-delete '/:id' do
-  @memo_data.delete_at(params[:id].to_i - 1)
-  @memo_data.each_with_index do |hash, idx|
-    hash[:id] = (idx + 1).to_s
-  end
-  File.open('memo_data.json', 'w+') { |file| JSON.dump(@memo_data, file) }
+post '/memos' do
+  settings.connection.exec('INSERT INTO memos (title, content) VALUES ($1, $2)', [params[:title], params[:content]])
+  redirect '/'
+end
+
+delete '/memos/:id' do |n|
+  settings.connection.exec('DELETE FROM memos WHERE id = $1', [n])
   redirect '/'
 end
